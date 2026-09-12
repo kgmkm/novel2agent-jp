@@ -1,6 +1,6 @@
-# novel2hermes_jp（開発終了 / DEPRECATED）
+# novel2hermes_jp
 
-このスキルは **開発終了** しました。後継は **[novel2agent-jp](https://github.com/kgmkm/novel2agent-jp)** です。
+このスキルは後継の **[novel2agent-jp](https://github.com/kgmkm/novel2agent-jp)** へ開発を移行中です。後継は現在テスト調整中のため、**テスト完了までの間、本リポジトリは通常どおり利用できます**（アーカイブ化は行われていません）。
 
 ## 後継スキルへの移行
 
@@ -19,8 +19,9 @@ https://github.com/kgmkm/novel2agent-jp
 
 ## このリポジトリについて
 
-- 本リポジトリは開発終了に伴い **アーカイブ（read-only）** 化されています。閲覧・clone・pull・fork は引き続き可能です
-- 旧版の手順書・スクリプトは履歴として残していますが、今後メンテナンスは行われません
+- 後継スキル novel2agent-jp のテスト完了後に、本リポジトリを **アーカイブ（read-only）** 化する予定です（時期未定）
+- それまでの間は、閲覧・clone・pull・push とも通常どおり可能です
+- 旧版の手順書・スクリプトはそのまま残しています
 - 旧版で作成した小説プロジェクトの移行方法は、後継リポジトリのドキュメントを参照してください
 
 ## ライセンス

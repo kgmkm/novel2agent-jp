@@ -1,16 +1,15 @@
 ---
 name: novel2hermes
-description: "DEPRECATED: このスキルは開発終了しました。後継の novel2agent-jp (https://github.com/kgmkm/novel2agent-jp) をインストールしてください。小説執筆の依頼には後継スキルを使用すること。Use novel2agent-jp instead; this skill is deprecated."
+description: "このスキルは後継の novel2agent-jp (https://github.com/kgmkm/novel2agent-jp) へ開発移行中です（後継はテスト調整中）。新規の小説プロジェクトには後継スキルの使用を推奨。This skill is being succeeded by novel2agent-jp."
 version: 3.0.0
 tags: [novel, writing, creative, japanese, fiction, file-based]
 ---
 
 # Japanese Novel Writing Skill (Hermes Agent)
 
-> **このスキルは開発終了（DEPRECATED）です。**
-> 後継は **[novel2agent-jp](https://github.com/kgmkm/novel2agent-jp)** です。
-> 小説プロジェクトの新規作成・継続には後継スキルを使用してください。
-> （vecmemori 同期は廃止され、TOML + validate.py / pack.py 方式に全面移行しました）
+> **このスキルは後継の [novel2agent-jp](https://github.com/kgmkm/novel2agent-jp) へ開発を移行中です。**
+> 後継は現在テスト調整中です。小説プロジェクトの新規作成・継続には、後継スキルの使用を推奨します。
+> （後継では vecmemori 同期を廃止し、TOML + validate.py / pack.py 方式に全面移行しています）
 
 This skill provides a framework for planning and writing Japanese novels using Hermes Agent with file-based workflow.
 
