@@ -1,8 +1,8 @@
 ---
 name: novel2hermes
-description: "Use when writing Japanese novels with Hermes Agent. Covers fantasy, SF, mystery, romance, literary fiction, and all genres. Load this skill when the user mentions novel writing, character design, worldbuilding, plot planning, story continuation, or wants to continue a novel project."
-version: 3.0.0
-tags: [novel, writing, creative, japanese, fiction, file-based]
+description: "DEPRECATED: Moved to novel2agent-jp (https://github.com/kgmkm/novel2agent-jp). This skill is no longer maintained. File-based, agent-agnostic workflow successor: TOML settings, deterministic context packs."
+version: 3.1.0
+tags: [novel, writing, creative, japanese, fiction, file-based, deprecated]
 ---
 
 # Japanese Novel Writing Skill (Hermes Agent)
