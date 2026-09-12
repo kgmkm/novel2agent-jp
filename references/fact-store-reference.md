@@ -1,4 +1,7 @@
-# vecmemori 操作リファレンス
+# vecmemori-plus 操作リファレンス（fact_store）
+
+> ツールは Hermes ネイティブプロバイダでも MCPサーバー経由でも同一。
+> マルチエージェント共有の運用規約は [multi-agent-memory.md](multi-agent-memory.md)。
 
 ## 保存
 
@@ -26,9 +29,12 @@ fact_store(action="contradict", statement="美咲は一人っ子である")  # �
 ## 確度管理
 
 ```python
-fact_feedback(action="helpful", fact_id=1)      # 確定設定
-fact_feedback(action="unhelpful", fact_id=2)     # 仮設定
+fact_feedback(action="helpful", fact_id=1)      # 確定設定 → trust +0.05
+fact_feedback(action="unhelpful", fact_id=2)     # 仮設定/古い → trust -0.10
 ```
+
+> 使った事実に必ずフィードバックを返すこと。trust スコアが検索順位に反映され、
+> 共有DBでは全エージェントのフィードバックが蓄積される。
 
 ## 全アクション
 
@@ -39,7 +45,7 @@ fact_feedback(action="unhelpful", fact_id=2)     # 仮設定
 | probe | エンティティ全件取得 | キャラの全情報を一括確認 |
 | related | エンティティ関連探索 | 関連キャラを横断検索 |
 | reason | 複数エンティティ横断 | AとBの関係性を検索 |
-| contradict | 矛盾検出 | 設定の食い違いを自動検出 |
+| contradict | 陳述と類似する記憶を検出 | 書く前に「断定前チェック」。返った候補を人間/エージェントが比較判断（recallベースのヒューリスティック） |
 | update | 既存記憶更新 | 設定変更の反映 |
 | remove | 記憶削除 | 没設定の削除 |
 | list | 全件一覧 | 全体の棚卸し |
