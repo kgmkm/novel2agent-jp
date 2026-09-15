@@ -53,26 +53,6 @@ git clone https://github.com/kgmkm/hermes-fake-moa.git ~/.hermes/skills/hermes-f
 | 3 | 時代考証・語彙 | 外来語、俗語、度量衡、学術用語 |
 | 4 | 読者視点評価 | 没入感、感情曲線、余韻、テーマ深化 |
 
-## ZIP / アーカイブ状態からの復旧
-
-スキルが一覧に表示されていても SKILL.md が空（内容が読み込めない）場合、ZIPに圧縮されたまま展開されていない可能性がある。
-
-```bash
-# novel2hermes スキルのディレクトリを確認
-ls -la "$HERMES_HOME/skills/novel2hermes/"
-
-# ZIPが存在する場合
-unzip -o "$HERMES_HOME/skills/novel2hermes.zip" -d "$HERMES_HOME/skills/novel2hermes/"
-
-# 二重ネスト( novel2hermes/novel2hermes/ ) が発生した場合
-mv "$HERMES_HOME/skills/novel2hermes/novel2hermes/"* "$HERMES_HOME/skills/novel2hermes/"
-rmdir "$HERMES_HOME/skills/novel2hermes/novel2hermes/"
-```
-
-展開後は skill_view(name='novel2hermes') で再読み込みすること。参照ファイルも同様に確認する。
-
-See `references/` subdirectory for detailed workflow guides.
-
 ### ワークフローガイド
 - `project-init.md` — プロジェクトディレクトリ構造のセットアップ
 - `planning-workflow.md` — 企画フェーズ（proposal / worldbuilding / character / plot）
@@ -88,7 +68,7 @@ See `references/` subdirectory for detailed workflow guides.
 ### 制作・運用
 - `illustration-guide.md` — 挿絵生成ワークフロー（ComfyUI 中心）
 - `fact-store-reference.md` — 設定の永続化（旧 fact_store 廃止予定・履歴参照用）
-- **`pixiv-export.md`** — pixiv小説へのエクスポート手順（pure conversion / メタデータ分離 / 差分検証 / 実装時の落とし穴7件）
+- `pixiv-export.md` — pixiv小説へのエクスポート手順（pure conversion / メタデータ分離 / 差分検証 / 実装時の落とし穴7件）
 
 ## Scripts
 
