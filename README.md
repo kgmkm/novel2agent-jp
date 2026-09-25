@@ -1,6 +1,6 @@
 # novel2agent-jp
 
-AIコーディングエージェントと一緒に日本語の小説を作るためのスキルです。旧 `novel2hermes_jp` から改名し、設計を全面刷新したものです。
+AIコーディングエージェントと一緒に日本語の小説を作るためのスキルです。旧 [`novel2hermes_jp`](https://github.com/kgmkm/novel2hermes_jp_archive) から改名し、設計を全面刷新したものです。
 
 企画・執筆・推敲の全工程を、エージェントへの指示として使えます。設定はすべて人間が読めるファイルに書かれるので、AIと人間が同じものを見ながら進められます。Hermes / Claude Code / opencode / goose など、どのエージェントでも使えます。
 
@@ -20,7 +20,7 @@ AIコーディングエージェントと一緒に日本語の小説を作るた
 
 ## 作例
 
-[【小説】妖狐は、嗤う](https://note.com/kagami_kami/n/n4a2a7b9f0d38) note.com 約18,000字 4章構成（※旧スキル `novel2hermes_jp` で制作）
+[【小説】妖狐は、嗤う](https://note.com/kagami_kami/n/n4a2a7b9f0d38) note.com 約18,000字 4章構成（※旧 [`novel2hermes_jp`](https://github.com/kgmkm/novel2hermes_jp_archive) で制作）
 
 ```
 企画・執筆・ディレクションLLM: opencode/deepseek-v4-pro
@@ -176,7 +176,7 @@ my-novel-project/
 ## 更新履歴
 
 ### v1.0（2026-09-26）
-- 旧 `novel2hermes_jp` を `novel2agent-jp` に改名。TOML 設計の現行内容をそのまま本体に載せ替え（旧内容は `novel2hermes_jp_archive` に保存）。star・fork・issue は引き継ぎ
+- 旧 `novel2hermes_jp` を `novel2agent-jp` に改名。TOML 設計の現行内容をそのまま本体に載せ替え（旧内容は [`novel2hermes_jp_archive`](https://github.com/kgmkm/novel2hermes_jp_archive) に保存）。star・fork・issue は引き継ぎ
 
 ### v0.4.7
 - 継続行の結合＋尻尾切り防止。文末句読点なしの行は次行と結合してから折り直す（単語途中分割の解消）。文末付近で幅超過したときは早い読点で折るか、尻尾が全角10字以下にならない位置まで切り位置を戻す（数文字孤立行の解消）。tests 1件追加（全90件緑）
