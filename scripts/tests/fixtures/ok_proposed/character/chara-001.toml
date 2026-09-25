@@ -1,0 +1,9 @@
+id = "chara-001"
+name_ja = "未確定のままの人"
+name_ruby = "み かくてい の まま の ひと"
+role = "support"
+
+[basic]
+gender = "female"
+age = 25
+first_person = "私"

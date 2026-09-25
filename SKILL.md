@@ -1,110 +1,71 @@
 ---
-name: novel2hermes
-description: "このスキルは後継の novel2agent-jp (https://github.com/kgmkm/novel2agent-jp) へ開発移行中です（後継はテスト調整中）。新規の小説プロジェクトには後継スキルの使用を推奨。This skill is being succeeded by novel2agent-jp."
-version: 3.0.0
-tags: [novel, writing, creative, japanese, fiction, file-based]
+name: novel2agent-jp
+description: "Use when writing Japanese novels with AI coding agents (Hermes, Claude Code, opencode, goose). File-based, agent-agnostic workflow: settings in TOML, deterministic context packs, validation scripts."
+version: 0.4.7
 ---
 
-# Japanese Novel Writing Skill (Hermes Agent)
+# novel2agent-jp
 
-> **このスキルは後継の [novel2agent-jp](https://github.com/kgmkm/novel2agent-jp) へ開発を移行中です。**
-> 後継は現在テスト調整中です。小説プロジェクトの新規作成・継続には、後継スキルの使用を推奨します。
-> （後継では vecmemori 同期を廃止し、TOML + validate.py / pack.py 方式に全面移行しています）
+日本語小説制作のためのエージェント非依存ワークフロースキル。
 
-This skill provides a framework for planning and writing Japanese novels using Hermes Agent with file-based workflow.
+## 発火条件
 
-## Quick Reference
+日本語小説の制作・執筆・推敲を AI コーディングエージェントに依頼するとき。
 
-- GitHub repo: https://github.com/kgmkm/novel2hermes_jp
+## 仕組み
 
-## Key Workflow
-
-1. **企画フェーズ**: proposal → worldbuilding → character design → plot
-2. **プロット検証**: pre-writing consistency checks (see references/revision-workflow.md Phase A)
-3. **執筆フェーズ**: write with scene template, emotion curve, five senses rotation
-4. **推敲（revision）**: 整合性検証（ミクロ／Phase B）→ 読者視点評価（マクロ／Phase C）
-5. **エクスポート**: 投稿プラットフォーム別の変換（pixiv等）
-
-**フェーズ移行時および会話が長くなった際は、必ず `/compress` を提案・実行すること。**（詳細: `references/revision-workflow.md` 冒頭「コンテキスト管理」）
-
-## 前提スキル
-
-推敲（MoA）のモデル選択・並列実行には **`hermes-fake-moa`** が必要です。
-
-- GitHub: https://github.com/kgmkm/hermes-fake-moa
-
-```bash
-# インストール
-git clone https://github.com/kgmkm/hermes-fake-moa.git ~/.hermes/skills/hermes-fake-moa
+```
+TOML（設定・プロット・キャラ・世界観）
+  ↓ scripts/validate.py（機械検証）
+  ↓ scripts/pack.py（文脈パック生成）
+.context/chNN.md（LLM に渡す Markdown・再生成可能）
 ```
 
-`hermes-fake-moa` は複数 LLM への並列プロンプト送信を汎用化したスキル。小説以外の用途でも使えます。
+- 設定はすべて TOML。本文は `novel/chNN.md` にのみ書く
+- フェーズ境界は停止する：proposal 承認（`proposal_status`）→ 世界観・キャラ・プロット各承認 → 企画承認（`plan_status`＋Phase A-4・A-5・C-1・MoAプロット診断）→ 章ごと確認が既定。承認なしに次へ進まない。詳細は planning §7・writing 執筆実行 8
+- 属性変更はキャラ TOML の `[[versions]]`、出来事は章 TOML の `[[established]]` に一元化
+- LLM の未確定事実は `status = "proposed"` で追記し、人間が `"confirmed"` に変える
+- 伏線の回収実績は `[[foreshadowing]]` の `resolved_at` に一本化
 
-## MoA Quick Reference
+## 執筆セッション開始時の固定手順
 
-推敲は 4 つの異なる視点を持つ LLM による合議（Mixture of Agents）が有効。
-**モデル一覧の取得・選択・並列実行は `hermes-fake-moa` を使用する。**
-手動オーケストレーションの詳細は `references/moa-manual-orchestration.md` を参照。
+手順の本体は `references/writing-workflow.md` 冒頭。validate → pack --check → 必要なら再生成 → `.context/chNN.md` を読んで執筆。
 
-| # | 視点 | 役割 |
-|---|------|------|
-| 1 | 論理整合性 | 時間軸、設定数値、因果関係、未回収伏線 |
-| 2 | 文体・表現技法 | 比喩、五感、リズム、文体一貫性 |
-| 3 | 時代考証・語彙 | 外来語、俗語、度量衡、学術用語 |
-| 4 | 読者視点評価 | 没入感、感情曲線、余韻、テーマ深化 |
+## 参照
 
-### ワークフローガイド
-- `project-init.md` — プロジェクトディレクトリ構造のセットアップ
-- `planning-workflow.md` — 企画フェーズ（proposal / worldbuilding / character / plot）
-- `writing-workflow.md` — 執筆フェーズ（正規原典の再読込 → 執筆 → メモリ更新）
-- `revision-workflow.md` — 推敲フェーズ（Phase A: プロット検証 / B: 整合性検証 / C: 読者視点評価）
-- `moa-manual-orchestration.md` — 4視点 LLM による MoA 推敲の手動オーケストレーション
+| ファイル | 読むとき |
+|---|---|
+| `schema/toml-schema.md` | TOML の必須キー・検証項目・pack.py 出力仕様 |
+| `references/planning-workflow.md` | 企画フェーズ（proposal / worldbuilding / character / plot の TOML 作成手順） |
+| `references/writing-workflow.md` | 執筆セッションの手順（pack 生成 → 執筆 → TOML 反映） |
+| `references/revision-workflow.md` | 推敲フェーズ（Phase A/B/C + MoA 4 視点 + proposed 確定手順） |
+| `references/moa-manual-orchestration.md` | 4 視点の横並び比較推敲（MoA）の実行手順。エージェント非依存（推敲で複数モデルを使うとき） |
+| `references/character-template.md` | キャラ TOML の全項目テンプレートと記入例 |
+| `references/toml-formatting.md` | TOML リテラルの機械整形（改行位置を AI に判断させない。TOML 修正後に読む） |
+| `references/character-design-guide.md` | キャラの発想手順（欠点先行・三層・配置。テンプレを埋める前に） |
+| `references/sensory-rotation.md` | 五感ローテーション（シーンごと視覚以外 2 つ以上） |
+| `references/metaphor-guide.md` | 比喩の選び方（クリシェ回避・1〜2 個/シーン） |
+| `references/pixiv-export.md` | pixiv投稿用変換の手順（エクスポート時に読む） |
+| `references/illustration-guide.md` | 挿絵生成ワークフロー（挿絵を作るときに読む） |
+| `references/vfm-to-pixiv-workflow.md` | 縦読み記法→pixiv変換の記法対比（VFMを使うときに読む） |
+| `references/vfm-to-kakuyomu-workflow.md` | 縦読み記法→カクヨム変換の記法対比（カクヨム投稿時に読む） |
+| `references/hermes-setup.md` | Hermes 固有の環境セットアップ（他エージェントでは不要） |
 
-### 表現・技法
-- `character-template.md` — キャラクター設定ファイルのテンプレート
-- `metaphor-guide.md` — 比喩の選び方（クリシェ回避）
-- `sensory-rotation.md` — 五感ローテーション（視覚以外 2 つ以上/シーン）
+## 本文保存の鉄則（事故対策）
 
-### 制作・運用
-- `illustration-guide.md` — 挿絵生成ワークフロー（ComfyUI 中心）
-- `fact-store-reference.md` — 設定の永続化（旧 fact_store 廃止予定・履歴参照用）
-- `pixiv-export.md` — pixiv小説へのエクスポート手順（pure conversion / メタデータ分離 / 差分検証 / 実装時の落とし穴7件）
+詳細は `references/writing-workflow.md`「執筆実行」。段落頭の全角空白禁止。保存直後に `check_prose.py`。
 
 ## Scripts
 
-### 実行環境（重要）
+CLI の詳細は各参照先。ここは用途の索引。
 
-この環境の **Windows + Git Bash** では、システム `python` / `py` ランチャー / uv-managed `python` は **SRE mismatch** で本スキルのスクリプトを実行できない。必ず **hermes-agent venv の Python を env 経由で呼ぶ**：
-
-```bash
-env -u PYTHONHOME PYTHONPATH= \
-  "C:/Users/narukami/AppData/Local/hermes/hermes-agent/venv/Scripts/python.exe" \
-  "C:/Users/narukami/AppData/Local/hermes/skills/novel2hermes/scripts/<script>.py" \
-  --project-dir "C:/Users/narukami/Box/.../プロジェクト名"
-```
-
-`hermes-fake-moa` 等の他スキルも同様。venv パスは共通。
-
-### `scripts/pixiv_export.py`
-
-pixiv小説投稿用の変換スクリプト。詳細は `references/pixiv-export.md` を参照。
-
-```bash
-# プロジェクト全体の変換
-python scripts/pixiv_export.py --project-dir ~/novel-project
-
-# 章ごとに分割（50,000字超過時）
-python scripts/pixiv_export.py --project-dir ~/novel-project --split
-
-# 差分検証（本文が改変されていないか確認）
-python scripts/pixiv_export.py --project-dir ~/novel-project --verify
-
-# 文字数チェック
-python scripts/pixiv_export.py --project-dir ~/novel-project --check-length
-
-# 単一ファイル変換（novel/構造を持たない場合）
-python scripts/pixiv_export.py --input 01-第一章.md 02-第二章.md
-```
-
-MoA モデル管理スクリプトは `hermes-fake-moa` スキルに集約されています。
-詳細は `hermes-fake-moa` の SKILL.md を参照。
+| スクリプト | 用途 | 詳細 |
+|---|---|---|
+| `scripts/validate.py` | 設定検証（`--index` / `--log`） | `schema/toml-schema.md` §5 |
+| `scripts/format_toml.py` | TOML リテラル整形（`--check` あり） | `references/toml-formatting.md` |
+| `scripts/pack.py` | 文脈パック生成（`--chapter` / `--check` / `--budget`） | `schema/toml-schema.md` §6 |
+| `scripts/check_prose.py` | 本文品質（空本文・全角空白・禁止語彙） | `references/writing-workflow.md` |
+| `scripts/init.py` | プロジェクト雛形生成 | `references/planning-workflow.md` §0 |
+| `scripts/pixiv_export.py` | pixiv 投稿用変換（レガシー `NNN-タイトル.md` も受理） | `references/pixiv-export.md` |
+| `scripts/vfm_to_pixiv.py` | 縦読み記法 → pixiv タグ | `references/vfm-to-pixiv-workflow.md` |
+| `scripts/vfm_to_kakuyomu.py` | 縦読み記法 → カクヨム記法 | `references/vfm-to-kakuyomu-workflow.md` |

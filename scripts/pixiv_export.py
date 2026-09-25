@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-pixiv_export.py — novel2hermes_jp pixiv小説エクスポート
+pixiv_export.py — novel2agent-jp pixiv小説エクスポート
 
 novel/ 配下の.mdファイルを pixiv小説投稿用の単一ファイルに統合する。
 本文は改変しない（pure conversion）。記法のみ pixiv 形式に統一する。
@@ -37,7 +37,8 @@ IMAGE_PLACEHOLDER_TMP = "\x00IMG{}\x00"
 # 章読込
 # ---------------------------------------------------------------------------
 
-CHAPTER_FILE_RE = re.compile(r"^(\d+)-(.+)\.md$")
+# 章ファイル: novel/chNN.md（標準）。レガシー形式 NNN-タイトル.md も受理
+CHAPTER_FILE_RE = re.compile(r"^(?:ch(\d{2,})|(\d+)-(.+))\.md$")
 H1_H2_RE = re.compile(r"^#+\s+.+$", re.MULTILINE)
 
 
@@ -57,8 +58,12 @@ def load_novel_chapters(novel_dir: Path) -> list[dict]:
             print(f"  [WARN] ファイル名規約に合致しないためスキップ: {f.name}", file=sys.stderr)
             continue
 
-        order = int(m.group(1))
-        file_title = m.group(2).replace("_", "　")
+        # chNN.md 形式: group(1)=章番号 / NNN-タイトル.md 形式: group(2)=章番号, group(3)=タイトル
+        if m.group(3) is None:
+            order, file_title = int(m.group(1)), f"第{int(m.group(1)):,}章"
+        else:
+            order = int(m.group(2))
+            file_title = m.group(3).replace("_", "　")
         content = f.read_text(encoding="utf-8")
         lines = content.split("\n")
 
@@ -360,13 +365,13 @@ def check_length(export_path: Path) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="novel2hermes_jp pixiv小説エクスポート",
+        description="novel2agent-jp pixiv小説エクスポート",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument(
         "--project-dir", type=Path,
-        help="novel2hermes_jp プロジェクトのルートディレクトリ",
+        help="novel2agent-jp プロジェクトのルートディレクトリ",
     )
     parser.add_argument(
         "--input-dir", type=Path,

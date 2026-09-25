@@ -1,0 +1,9 @@
+id = "world-001"
+title = "世界観基本設定"
+kind = "core"
+content = '''魔法と科学が共存する現代日本。'''
+
+[[constraints]]
+kind = "forbidden_words"
+words = ["スマホ", "SNS"]
+note = "舞台は大正時代のため使用禁止"

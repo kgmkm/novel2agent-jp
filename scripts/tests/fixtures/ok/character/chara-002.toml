@@ -1,0 +1,9 @@
+id = "chara-002"
+name_ja = "佐藤太郎"
+name_ruby = "さとう たろう"
+role = "support"
+
+[basic]
+gender = "male"
+age = 20
+first_person = "俺"

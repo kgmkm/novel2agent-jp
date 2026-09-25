@@ -1,0 +1,15 @@
+id = "plot-ch01"
+chapter = 1
+title = "登場"
+summary_status = "proposed"
+
+[[scenes]]
+title = "夜の公園"
+location = "中央公園"
+pov = "chara-001"
+characters = ["chara-001"]
+content = '''ベンチに誰かが座っていた。'''
+
+[[established]]
+content = "chara-001 が引っ越してきた"
+status = "proposed"

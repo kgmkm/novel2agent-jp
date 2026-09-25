@@ -1,0 +1,19 @@
+id = "plot-ch01"
+chapter = 1
+title = "覚醒"
+pov = "chara-001"
+summary = "美咲が道端で魔法に覚醒する。"
+summary_status = "confirmed"
+
+[[scenes]]
+title = "帰り道"
+location = "駅前商店街"
+time = "夕方"
+pov = "chara-001"
+characters = ["chara-001", "chara-002"]
+content = '''太郎の机の写真が視界に入る——'''
+
+[[foreshadowing]]
+id = "fs-001"
+content = "太郎の机の古びた写真"
+resolve_chapter = 3

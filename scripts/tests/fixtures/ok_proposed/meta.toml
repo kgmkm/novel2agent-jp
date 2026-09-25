@@ -1,0 +1,9 @@
+[work]
+title = "提案状態のテスト作品"
+genre = "ミステリー"
+status = "planning"
+
+[[chapters]]
+number = 1
+plot = "plot/plot-ch01.toml"
+status = "draft"

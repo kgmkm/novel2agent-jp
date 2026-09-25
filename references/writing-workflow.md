@@ -1,150 +1,97 @@
-# 執筆フェーズ詳細ワークフロー
+# 執筆ワークフロー
 
-## 2-0. プロジェクト継続（既存作品の引継ぎ）
+## 固定手順（冒頭に必ずこの順で回す）
 
-既存の小説プロジェクトを引き継ぐ場合（新規企画ではなく、過去セッションで作成された作品の続きを書く場合）、以下の手順でプロジェクトの所在とコンテキストを復元する。
-
-### 発見フェーズ
-
-1. **`session_search` で過去セッションを検索**: 作品タイトル・ジャンル・セル番号（A×B形式等）で検索し、プロジェクトのルートパスを特定する
-2. プロジェクトルートが標準パス（`~/novels/` など）以外にある場合（外付けドライブ `Y:/` 等）、`session_search` の結果に出現するファイルパスがヒントになる
-3. **AGENTS.md を読む**: 作品ガイド・文体規則・禁止事項を把握。これが作品の憲法
-4. **proposal.md を読む**: 企画意図・テーマ・全体構成を把握
-5. **plot/ の該当話プロットを読む**: シーンテンプレート（ビート・NSFW詳細・五感指定・演出意図）を完全に把握する
-6. **character/ の主人公シートを読む**: 外見・性格・口調・一人称・変身ギミックを厳密に把握
-7. **既存の校済原稿を読む（推奨）**: 同じ Aカテゴリ または 同じジャンル の既存完成原稿を1本読み、文体・テンポ・地の文と台詞の比率・喘ぎ声のレベル感を掴む。その原稿のトーンを「正解データ」として採用する
-
-### 注意
-
-- 初回継続セッションでは `.md` 全読みは正当。vecmemori へのアクセス権がなく、過去セッションからコンテキストを再構築する唯一の手段だからである。2回目以降は通常の vecmemori 優先ルールに戻る
-- プロットが既に完成していれば、企画フェーズ（世界観→キャラ→プロット）はスキップして直接 **2-1. 執筆前チェックリスト** へ進む
-- 既存完成原稿を参照する際、設定の拡張解釈はしない。AGENTS.md に明記されていない要素を「映えるから」と独自に追加しない
-
-## 2-1. 執筆前チェックリスト
-
-執筆を始める前に、vecmemori から設定を再構築します。vecmemori は AI の一次情報取得手段であり、.md ファイルの全読みは不要です。セッション初回のみ差分検出のために .md を確認します。
-
-**トークン効率**: vecmemori 検索（1回あたり約100〜200トークン）に対し、.md 全ファイル読込は数千トークンを消費します。毎セッションで全ファイルを読むとコンテキストが逼迫し、応答品質が低下します。vecmemori を優先し、.md は差分検出時のピンポイント読込に留めてください。
-
-```python
-# Step 1: 前回セッションの確認
-session_search(query="作品タイトル 執筆")       # 前回の中断箇所・決定事項
-
-# Step 2: vecmemori で必要情報を高速取得（主要）
-fact_store(action="search", query="世界観 設定")   # 世界観
-fact_store(action="probe", entity="桜井美咲")      # キャラ情報（全件）
-fact_store(action="search", query="pid=001 sid=02") # 章またぎ子レコード
-fact_store(action="search", query="第1章 プロット 展開")  # プロット概要
-fact_store(action="search", query="伏線 未回収")   # 未回収伏線
-
-# Step 3: vecmemori の情報で不足があれば .md をピンポイント読込（必要な場合のみ）
-# 例: シーンテンプレートの詳細（場所・時間・視点・演出）が必要な場合
-# read_file("plot/第1章.md")  # ← 本当に必要なときだけ
-# 例: キャラの外見詳細が vecmemori で不明瞭な場合
-# read_file("character/02-01-美咲_覚醒前.md")
-
-# Step 4: 整合性チェック（セッション初回のみ差分検出）
-# .md が人間によって編集されている可能性をチェック
-fact_store(action="contradict", statement="確認したい命題")
-
-# 乖離があればユーザに通知: 「.md に変更があります。vecmemori を更新しますか？」
+```bash
+python scripts/validate.py --project-dir <project>
+python scripts/pack.py --project-dir <project> --chapter N --check   # 鮮度チェック
+# 古い場合のみ:
+python scripts/pack.py --project-dir <project> --chapter N
 ```
 
-**.md を読むべきケース（例外）**:
-| ケース | 理由 |
-|--------|------|
-| vecmemori の検索結果が空／不足 | fact_store に未登録の可能性 |
-| シーンテンプレートの詳細が必要 | plot/*.md の完全なテンプレート（場所・時間・視点・演出・キー台詞）は vecmemori に要約のみ保存 |
-| セッション初回の差分検出 | 人間が .md を編集した可能性 |
-| fact_store(contradict) が矛盾を検出 | .md 正規原典と照合して真偽を判断 |
+以後、`.context/chNN.md` を読んで執筆する。**キャラ・世界観・伏線・前章の情報はパックのみから得る**。TOML 群の直接読込はしない（pack.py が単一情報源）。
 
-## 2-2. 執筆実行
+**企画承認の確認**：`meta.toml` の `plan_status` が `confirmed` でなければ執筆しない（validate がエラーにする。planning §7）。承認なしに `novel/chNN.md` を作らない。
 
-1. vecmemori（fact_store）の検索結果を元に執筆を開始。.md ファイルの全読み込みは不要
-2. 指定された章（または続き）から執筆開始
-3. 各シーンは vecmemori から取得したプロット指示に忠実に、キャラ設定に忠実に描写
-4. シーンテンプレートの詳細（場所・時間・視点・演出・キー台詞）が必要な場合は plot/*.md をピンポイント読込
-5. **文体: 三人称過去形を基本とする。キャラの口調は一貫させる**
-6. **五感ローテーション: シーンごとに視覚以外の感覚（聴覚・触覚・嗅覚）を 2 つ以上使う。不足時は 1〜2 行追記（references/sensory-rotation.md 参照）**
-7. **比喩: シーンごとに 1〜2 個の効果的な比喩。クリシェを避ける（references/metaphor-guide.md 参照）**
-8. ユーザが続きを書いた場合はその直後から執筆再開
-9. ユーザから意見を求められたら、作品のクオリティを最大化する方向で提案
-10. 執筆内容は novel/ 以下に保存
+セッション開始時（既存プロジェクトの継ぎ）：
 
-### 2-2-1. 執筆時時代考証チェック
+1. AGENTS.md（作品の憲法）を読む
+2. proposal.md を読む
+3. 制作ログの直近 10 件を読む（`python scripts/validate.py --project-dir <project> --log`）。直近の方針変更と却下済みの案を把握する（対象章関連分はパックにも入る）
+4. 上記の固定手順でパックを生成して読む
+5. 既存完成原稿があれば 1 本読んで文体のトーンを「正解データ」として採用する。設定の拡張解釈はしない（AGENTS.md にない要素を独自に追加しない）
 
-一文書くごとに、以下の 3 点を意識する（事後修正より執筆時の抑制が効果的）:
+## 執筆実行
 
-- **時代**: 作品の時代設定に存在しない語彙・概念を使っていないか（planning-workflow 1-2 の「世界制約リスト」参照）
-- **文化圏**: 舞台の文化圏に存在しない概念を使っていないか
-- **キャラ知識**: そのキャラクターが知りうる語彙・概念の範囲内か
+1. 該当章の `.context/chNN.md` に忠実に。シーンごとに `演出:` を確認してから書く
+2. **文体： 三人称過去形を基本。キャラの口調・一人称はパックの記載と一貫させる。台詞はその時点の知識状態に合致させる**
+3. **五感ローテーション： シーンごとに視覚以外の感覚（聴覚・触覚・嗅覚・味覚）を 2 つ以上**（references/sensory-rotation.md）
+4. **比喩： シーンごとに 1〜2 個。クリシェ回避**（references/metaphor-guide.md）
+5. 本文は `novel/chNN.md` に保存。plot TOML や .context に本文を書き戻さない
+   - **保存直後に必ず確認する**: ファイルが存在し、見出し以外の本文が入っているか。LLM の編集経路は本文を空にしたまま見出しと空行だけを保存する事故が実例としてある — 保存後の本文消失に気づかないまま次章へ進まないこと
+     ```bash
+     python scripts/check_prose.py --project-dir <project>            # 全章
+     python scripts/check_prose.py --project-dir <project> --chapter N
+     python scripts/check_prose.py --project-dir <project> --min-chars 200
+     python scripts/check_prose.py --project-dir <project> --strict   # 警告でも exit 1
+     ```
+   - **Markdown 段落は空白なし**: 日本語原稿でも段落頭に全角空白（`\u3000`）を入れない。エージェントの編集経路によって壊れる可能性があるため作品規則とする（check_prose.py が警告する）
+6. **執筆中の時代考証**：一文ごとに「時代 / 文化圏 / キャラ知識」の 3 点を意識する。`[[constraints]]` の禁止語彙は最初から使わない（事後修正より執筆時抑制）
+7. ユーザが続きを書いたらその直後から再開。意見を求められたら作品クオリティ最大化の方向で提案
+8. **次章に進む前はユーザ確認が既定**。ユーザの明示的承認なしに、次章を書く前の確認を省かない。「残り全部書いて」等の一括指示がある場合のみ省略可（proposed の確定確認は省略しない）
 
-執筆完了後、revision-workflow B-3 の正式な照合を行うが、執筆中の能動的チェックで修正コストを大幅に削減できる。
+## 執筆後の記録更新（TOML への反映）
 
-## 2-3. 執筆後メモリ更新
+執筆中に判明した設定・出来事・伏線はすべて TOML に追記する。
 
-執筆中に新たに判明した設定や伏線は、vecmemori と .md ファイルの両方に反映します。
+| 何か | 書き場所 | status |
+|------|---------|--------|
+| 属性の変化（年齢・所属・外見） | キャラ TOML の `[[versions]]` | — |
+| この章で確定した出来事・関係変化 | 章 TOML の `[[established]]` | 初期値は `proposed`（LLM 提案）→ 推敲完了時に人間が `confirmed` |
+| 新たな伏線 | 章 TOML の `[[foreshadowing]]` | `resolve_chapter` は必須。実績は回収時に `resolved_at` |
+| 章要約 | 章 TOML の `summary` | `summary_status = "proposed"` で記入 → 人間が confirmed |
+| 執筆完了 | meta.toml の該当 `[[chapters]].status` | `draft` → `written` |
+| 執筆中に既定の決定を変えた／提案が却下された | production-log.toml | `by = "agent"` で追記 |
 
-```python
-# 小さな追記 → vecmemori update + .md 追記
-fact_store(action="update", fact_id=10,
-    content="美咲[001-01]: 第1章で判明。幼少期に母親を病気で亡くしている。")
+LLM が「事実」として自信のない追記は、必ず `status = "proposed"` を付ける。**proposed は validate が警告し、pack は【未確定】付きで次章パックに含める**（黙って省略しない）。
 
-patch(path="character/02-01-美咲_覚醒前.md",
-    old_string="性格は真面目で思いやりがあるがやや内向的。",
-    new_string="性格は真面目で思いやりがあるがやや内向的。幼少期に母親を病気で亡くし、その経験から医療文学を専攻。")
+### 追記例
 
-# 大きな設定変化 → vecmemori 新規子レコード + .md 新規ファイル
-fact_store(action="add",
-    content="子キャラ[005-02] リリア（第4章〜）: 悪堕ち後。所属が「神聖教会」から「深淵教団」に変わる。髪色が赤→ピンクに変化。瞳孔がハート型に変容。性格は純真→妖艶で退廃的。一人称「私」→「あたし」。",
-    category="character",
-    tags="character,子,リリア,pid=005,sid=02,悪堕ち,第4章,深淵教団")
+```toml
+# plot-ch03.toml に（執筆後に追加）
+[[established]]
+content = "美咲が旧校舎で魔法に覚醒した"
+status = "proposed"
+characters = ["chara-001"]
 
-write_file(path="character/04-02-リリア_悪堕ち後.md", content="""# リリア（第4章〜：悪堕ち後）
-（vecmemori [005-02] と同一内容）
-...""")
+[[foreshadowing]]
+id = "fs-003"
+content = "覚醒時に美咲が呟いた「203号室」"
+resolve_chapter = 5
 
-# 新たな伏線 → vecmemori + .md
-fact_store(action="add",
-    content="伏線: 第1章。翔太の研究室の机の引き出しに古びた写真。裏に「M.T. 2018」の走り書き。第3章で回収予定。",
-    category="plot", tags="plot,伏線,第1章,翔太")
-
-patch(path="plot/第1章.md",
-    old_string="## シーン一覧",
-    new_string="## 伏線\n- 翔太の机の写真「M.T. 2018」（第3章回収予定）\n\n## シーン一覧")
+# meta.toml
+# number=3 の status を draft → written
 ```
 
-## 2-4. 推敲（revision-workflow.md 参照）
+追記後は必ず再検証＋パック再生成：
 
-執筆完了後、revision-workflow.md の Phase B に従って推敲を行う。
-推敲時の情報取得も vecmemori を優先し、.md 読込は必要最低限に留める。
+```bash
+python scripts/check_prose.py --project-dir <project>   # 本文品質（空本文・禁止語彙・全角空白）
+python scripts/format_toml.py --project-dir <project>   # リテラル整形（改行位置の機械修正。toml-formatting.md）
+python scripts/validate.py --project-dir <project>
+python scripts/pack.py --project-dir <project> --chapter <次の章> 
+```
 
-1. **対話チェーン検証** — 各台詞の論理的前提が物語中で確立されているか
-2. **指示語の射程チェック** — 「それ」「あれ」「あなたの」の指示対象を明示的に確認
-3. **世界制約チェック** — `fact_store(search, query="世界制約 存在しない")` で制約リストを取得し、時代錯誤語彙がないか照合（.md の制約リスト読みは初回のみで十分）
-4. **章間事実整合性** — vecmemori `contradict` で章をまたぐ事実の矛盾を検出
-5. **五感ローテーション** — 各シーンで視覚以外の感覚が2つ以上使われているか
+### proposed の確定確認（執筆直後に必ず行う）
 
----
+要約・established を `proposed` で記入した後、エージェントはユーザに短く確認する:
 
-## 執筆クオリティ基準
+> 第 N 章の要約と確定事項を記入しました。以下の内容を確定（confirmed）してよいか確認ください:
+> - summary: （要約の全文）
+> - established: （項目一覧）
 
-| 項目 | 基準 |
-|------|------|
-| 文体 | 三人称過去形。キャラの口調は一貫させる |
-| 五感 | シーンごとに視覚以外の感覚を 2 つ以上 |
-| 比喩 | シーンごとに 1〜2 個。クリシェを避ける |
-| 台詞 | キャラの知識状態に合致しているか検証済み |
-| 伏線 | 張り→回収が対応表で追跡可能 |
-| 時代 | 「存在しないものリスト」との照合済み |
-| 整合性 | 章間の数値・事実が vecmemori で検証済み |
+**ユーザが明示的に承認した場合だけ**、該当章の `summary_status` と `established[].status` を `confirmed` へ更新する。承認なしに自分で confirmed に変えない。confirm 後は `validate.py` を再実行し、該当章の警告が消えたことを確認する。
 
----
+## 推敲への引き継ぎ
 
-## 使用方法（ユーザへの指示例）
-
-- 「このスキルを使って企画から始めて」→ 企画フェーズ開始（planning-workflow.md 参照）
-- 「proposal.md を元に第 1 章を書いて」→ 執筆フェーズ開始（writing-workflow.md 参照）
-- 「全章の整合性をチェックして」→ 校正フェーズ（MoA 推敲を提案。revision-workflow.md 参照）
-- 「vecmemori に保存してある設定を確認して」→ vecmemori 検索
-- 「第 3 章の続きを書いて」→ 前回中断箇所から執筆再開
+本文執筆後、references/revision-workflow.md の Phase B（整合性）→ Phase C（読者視点）へ。推敲完了時に proposed → confirmed 変更を忘れないこと。

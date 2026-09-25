@@ -1,0 +1,21 @@
+id = "chara-001"
+name_ja = "桜井美咲"
+name_ruby = "さくらい みさき"
+role = "protagonist"
+
+[basic]
+gender = "female"
+age = 19
+first_person = "私"
+
+[[relations]]
+target = "chara-002"
+kind = "学友"
+
+[[versions]]
+from_chapter = 1
+to_chapter = 2
+age = 18
+
+[[versions]]
+from_chapter = 3

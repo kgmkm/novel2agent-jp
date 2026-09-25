@@ -1,0 +1,9 @@
+id = "chara-001"
+name_ja = "無傷のキャラ"
+name_ruby = "むしょう の キャラ"
+role = "mob"
+
+[basic]
+gender = "male"
+age = 40
+first_person = "私"

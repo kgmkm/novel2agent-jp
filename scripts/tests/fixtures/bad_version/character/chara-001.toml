@@ -1,0 +1,17 @@
+id = "chara-001"
+name_ja = "花村あおい"
+name_ruby = "はなむら あおい"
+role = "protagonist"
+
+[basic]
+gender = "female"
+age = 20
+first_person = "僕"
+
+[[versions]]
+from_chapter = 1
+to_chapter = 3
+
+[[versions]]
+from_chapter = 2
+to_chapter = 5

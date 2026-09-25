@@ -1,0 +1,9 @@
+id = "chara-009"
+name_ja = "ここはファイル名と不一致にする"
+name_ruby = "ここはファイル名と不一致にする"
+role = "support"
+
+[basic]
+gender = "male"
+age = 30
+first_person = "俺"

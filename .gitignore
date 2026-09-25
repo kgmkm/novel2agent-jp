@@ -1,4 +1,6 @@
+# 再生成可能な派生物
+.context/
 __pycache__/
-*.pyc
-.pytest_cache/
-tests/
+scripts/tests/.work/
+docs/
+.temp/
